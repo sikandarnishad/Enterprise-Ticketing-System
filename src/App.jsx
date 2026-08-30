@@ -1,4 +1,10 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import {
+    BrowserRouter,
+    Routes,
+    Route,
+    Navigate
+} from "react-router-dom";
+
 import Login from "./pages/Login";
 import CustomerDashboard from "./pages/CustomerDashboard";
 import CreateTicket from "./pages/CreateTicket";
@@ -26,94 +32,90 @@ import AdminCharts from "./pages/AdminCharts";
 import EscalatedTickets from "./pages/EscalatedTickets";
 import Settings from "./pages/Settings";
 import CriticalTickets from "./pages/CriticalTickets";
-//import MyTickets from "./pages/MyTickets";
-//<Route
-//    path="/mytickets"
-//    element={<MyTickets />}
-///>
+
+
+// ==========================================
+// HOME REDIRECT
+// ==========================================
+
+function HomeRedirect() {
+
+    const token = localStorage.getItem("token");
+    const role = localStorage
+        .getItem("role")
+        ?.toUpperCase();
+
+    // No login
+    if (!token) {
+        return <Navigate to="/login" replace />;
+    }
+
+    // Admin
+    if (role === "ADMIN") {
+        return <Navigate to="/admin" replace />;
+    }
+
+    // Engineer
+    if (role === "ENGINEER") {
+        return <Navigate to="/engineer" replace />;
+    }
+
+    // Customer
+    if (role === "CUSTOMER") {
+        return <Navigate to="/customer" replace />;
+    }
+
+    // Unknown role
+    return <Navigate to="/login" replace />;
+}
+
+
+// ==========================================
+// APP
+// ==========================================
+
 function App() {
+
     return (
+
         <BrowserRouter>
+
+            {/* ==================================
+                NAVBAR
+                Visible on ALL pages
+            ================================== */}
 
             <Navbar />
 
+
             <Routes>
 
-                {/* Public Routes */}
+                {/* ==================================
+                    PUBLIC ROUTES
+                ================================== */}
 
-
-
-<Route
-    path="/critical-tickets"
-    element={<CriticalTickets />}
+                {/* Root */}
+                <Route
+                    path="/"
+                    element={<HomeRedirect />}
                 />
 
+                {/* Login */}
                 <Route
-                    path="/mytickets"
-                    element={<MyTickets />}
+                    path="/login"
+                    element={<Login />}
                 />
 
-
-                <Route
-                    path="/escalated"
-                    element={<EscalatedTickets />}
-                />
-
-                <Route
-                    path="/settings"
-                    element={<Settings />}
-                />
-
-                <Route
-                    path="/sla-dashboard"
-                    element={<SlaDashboard />}
-                />
-                <Route
-                    path="/analytics"
-                    element={<AdminCharts />}
-                />
-
-                <Route
-                    path="/export-users"
-                    element={<ExportUsers />}
-                />
-
-                <Route
-                    path="/engineer-performance"
-                    element={<EngineerPerformance />}
-                />
-
-                <Route
-                    path="/import-users"
-                    element={<ImportUsers />}
-                />
-
-                <Route
-                    path="/ticket-history/:id"
-                    element={<TicketHistory />}
-                /><Route
-    path="/"
-    element={
-        localStorage.getItem("token") ? (
-            localStorage.getItem("role") === "Admin" ? (
-                <Navigate to="/admin" replace />
-            ) : localStorage.getItem("role") === "Engineer" ? (
-                <Navigate to="/engineer" replace />
-            ) : (
-                <Navigate to="/customer" replace />
-            )
-        ) : (
-            <Login />
-        )
-    }
-/>
-
+                {/* Register */}
                 <Route
                     path="/register"
                     element={<Register />}
                 />
 
-                {/* Admin Routes */}
+
+                {/* ==================================
+                    ADMIN ROUTES
+                ================================== */}
 
                 <Route
                     path="/admin"
@@ -170,7 +172,98 @@ function App() {
                     }
                 />
 
-                {/* Engineer Routes */}
+                <Route
+                    path="/import-users"
+                    element={
+                        <ProtectedRoute>
+                            <RoleProtectedRoute role="Admin">
+                                <ImportUsers />
+                            </RoleProtectedRoute>
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route
+                    path="/export-users"
+                    element={
+                        <ProtectedRoute>
+                            <RoleProtectedRoute role="Admin">
+                                <ExportUsers />
+                            </RoleProtectedRoute>
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route
+                    path="/engineer-performance"
+                    element={
+                        <ProtectedRoute>
+                            <RoleProtectedRoute role="Admin">
+                                <EngineerPerformance />
+                            </RoleProtectedRoute>
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route
+                    path="/sla-dashboard"
+                    element={
+                        <ProtectedRoute>
+                            <RoleProtectedRoute role="Admin">
+                                <SlaDashboard />
+                            </RoleProtectedRoute>
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route
+                    path="/analytics"
+                    element={
+                        <ProtectedRoute>
+                            <RoleProtectedRoute role="Admin">
+                                <AdminCharts />
+                            </RoleProtectedRoute>
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route
+                    path="/escalated"
+                    element={
+                        <ProtectedRoute>
+                            <RoleProtectedRoute role="Admin">
+                                <EscalatedTickets />
+                            </RoleProtectedRoute>
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route
+                    path="/critical-tickets"
+                    element={
+                        <ProtectedRoute>
+                            <RoleProtectedRoute role="Admin">
+                                <CriticalTickets />
+                            </RoleProtectedRoute>
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route
+                    path="/settings"
+                    element={
+                        <ProtectedRoute>
+                            <RoleProtectedRoute role="Admin">
+                                <Settings />
+                            </RoleProtectedRoute>
+                        </ProtectedRoute>
+                    }
+                />
+
+
+                {/* ==================================
+                    ENGINEER ROUTES
+                ================================== */}
 
                 <Route
                     path="/engineer"
@@ -194,7 +287,10 @@ function App() {
                     }
                 />
 
-                {/* Customer Routes */}
+
+                {/* ==================================
+                    CUSTOMER ROUTES
+                ================================== */}
 
                 <Route
                     path="/customer"
@@ -229,7 +325,22 @@ function App() {
                     }
                 />
 
-                {/* Shared Routes */}
+                {/* Existing route */}
+                <Route
+                    path="/mytickets"
+                    element={
+                        <ProtectedRoute>
+                            <RoleProtectedRoute role="Customer">
+                                <MyTickets />
+                            </RoleProtectedRoute>
+                        </ProtectedRoute>
+                    }
+                />
+
+
+                {/* ==================================
+                    SHARED ROUTES
+                ================================== */}
 
                 <Route
                     path="/profile"
@@ -256,6 +367,25 @@ function App() {
                             <TicketComments />
                         </ProtectedRoute>
                     }
+                />
+
+                <Route
+                    path="/ticket-history/:id"
+                    element={
+                        <ProtectedRoute>
+                            <TicketHistory />
+                        </ProtectedRoute>
+                    }
+                />
+
+
+                {/* ==================================
+                    FALLBACK
+                ================================== */}
+
+                <Route
+                    path="*"
+                    element={<Navigate to="/" replace />}
                 />
 
             </Routes>
