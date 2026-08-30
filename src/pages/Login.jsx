@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 import { jwtDecode } from "jwt-decode";
@@ -23,16 +23,22 @@ function Login() {
 
             const token = response.data.token;
 
-            // Save Token
+            // =========================
+            // SAVE TOKEN
+            // =========================
             localStorage.setItem("token", token);
 
-            // Decode JWT
+            // =========================
+            // DECODE JWT
+            // =========================
             const decoded = jwtDecode(token);
 
             console.log("TOKEN =", token);
             console.log("DECODED =", decoded);
 
-            // Save Username
+            // =========================
+            // SAVE USERNAME
+            // =========================
             const loggedInUser =
                 decoded["unique_name"] || username;
 
@@ -41,41 +47,68 @@ function Login() {
                 loggedInUser
             );
 
-            // Save Role
+            // =========================
+            // GET ROLE FROM JWT
+            // =========================
             const roles =
-                decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
+                decoded[
+                    "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+                ];
 
             const role = Array.isArray(roles)
                 ? roles[0]
                 : roles;
 
+            // Normalize role
+            const normalizedRole =
+                role?.toLowerCase();
+
+            console.log("ROLE =", role);
+            console.log("NORMALIZED ROLE =", normalizedRole);
+
+            // Save role
             localStorage.setItem(
                 "role",
-                role
+                normalizedRole
             );
 
-            alert("Login Successful");
+            // =========================
+            // REDIRECT BY ROLE
+            // =========================
 
-            // Redirect By Role
-            switch (role) {
+            if (normalizedRole === "admin") {
 
-                case "Admin":
-                    navigate("/admin");
-                    break;
+                navigate("/admin", { replace: true });
 
-                case "Engineer":
-                    navigate("/engineer");
-                    break;
+            }
+            else if (normalizedRole === "engineer") {
 
-                default:
-                    navigate("/customer");
-                    break;
+                navigate("/engineer", { replace: true });
+
+            }
+            else if (normalizedRole === "customer") {
+
+                navigate("/customer", { replace: true });
+
+            }
+            else {
+
+                console.error(
+                    "Unknown role:",
+                    role
+                );
+
+                alert("User role not recognized.");
+                navigate("/", { replace: true });
             }
 
         }
         catch (error) {
 
-            console.log(error);
+            console.error(
+                "Login Error:",
+                error
+            );
 
             alert("Invalid Username or Password");
         }
@@ -97,6 +130,7 @@ function Login() {
                         <form onSubmit={handleLogin}>
 
                             <div className="mb-3">
+
                                 <input
                                     type="text"
                                     className="form-control"
@@ -107,9 +141,11 @@ function Login() {
                                     }
                                     required
                                 />
+
                             </div>
 
                             <div className="mb-3">
+
                                 <input
                                     type="password"
                                     className="form-control"
@@ -120,6 +156,7 @@ function Login() {
                                     }
                                     required
                                 />
+
                             </div>
 
                             <button
