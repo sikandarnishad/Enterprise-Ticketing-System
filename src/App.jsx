@@ -1,5 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import CustomerDashboard from "./pages/CustomerDashboard";
 import CreateTicket from "./pages/CreateTicket";
@@ -92,12 +91,22 @@ function App() {
                 <Route
                     path="/ticket-history/:id"
                     element={<TicketHistory />}
-                />
-
-                <Route
-                    path="/"
-                    element={<Login />}
-                />
+                /><Route
+    path="/"
+    element={
+        localStorage.getItem("token") ? (
+            localStorage.getItem("role") === "Admin" ? (
+                <Navigate to="/admin" replace />
+            ) : localStorage.getItem("role") === "Engineer" ? (
+                <Navigate to="/engineer" replace />
+            ) : (
+                <Navigate to="/customer" replace />
+            )
+        ) : (
+            <Login />
+        )
+    }
+/>
 
                 <Route
                     path="/register"
